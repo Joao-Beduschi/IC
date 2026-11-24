@@ -6,8 +6,11 @@ struct CSV
 {
     char (*colloum)[50];
     float (**valor);
+    int colunas;
+    int linhas;
 
 };
+
 
 
 struct CSV CSVReader(char filename[50]){
@@ -19,7 +22,7 @@ struct CSV CSVReader(char filename[50]){
         exit(-1);
     }
     fgets(buffer,sizeof(buffer),csv_File);
-    char *nomes = strtok(buffer,",");
+    char *nomes = strtok(buffer," ");
     int i = 0;
     int colunas = 2;
     teste->colloum = malloc(colunas*(sizeof(*teste->colloum)));
@@ -35,19 +38,20 @@ struct CSV CSVReader(char filename[50]){
         }
         strcpy(teste->colloum[i],nomes);
         printf("%s\n", teste->colloum[i]);
-        nomes = strtok(NULL,",");
+        nomes = strtok(NULL," ");
         i++;
     }
+    teste->colunas = colunas;
     teste->valor = malloc(colunas*sizeof(float*));
     char *valores = fgets(buffer,sizeof(buffer),csv_File);
     int linhas = 0;
     for(int f=0; f<colunas;f++){
         teste->valor[f] = malloc(sizeof(float));
         if(f ==0){
-            teste->valor[f][linhas] = atof(strtok(valores,","));
+            teste->valor[f][linhas] = atof(strtok(valores," "));
         }
         else{
-            teste->valor[f][linhas] = atof(strtok(NULL,","));
+            teste->valor[f][linhas] = atof(strtok(NULL," "));
         }
     }
     linhas++;
@@ -55,22 +59,29 @@ struct CSV CSVReader(char filename[50]){
         for(int f=0; f<colunas;f++){
             teste->valor[f] = realloc(teste->valor[f],sizeof(float)*(linhas+1));
             if(f ==0){
-                teste->valor[f][linhas] = atof(strtok(buffer,","));
+                teste->valor[f][linhas] = atof(strtok(buffer," "));
             }
             else{
-                teste->valor[f][linhas] = atof(strtok(NULL,","));
+                teste->valor[f][linhas] = atof(strtok(NULL," "));
             }          
         }
         linhas++;
     }
+    teste->linhas = linhas;
     fclose(csv_File);
     return *teste;
 }
 
 int main(void) {
-    char filename[50] = "dados_teste_100x2.csv";
+    char filename[50] = "Cav2_2_0.txt";
     struct CSV resultado = CSVReader(filename);
-    printf("%f\n", resultado.valor[1][10]);
+    int input;
+    printf("Digite a linha desejada (0 a 99): ");
+    if (scanf("%d", &input) == 1 && input >= 0 && input < 100) {
+        printf("%f\n", resultado.valor[0][input-1]);
+    } else {
+        printf("Linha invalida.\n");
+    }
 
     // Liberação da memória alocada dentro de CSVReader
     for (int f = 0; f < 2; f++) {
